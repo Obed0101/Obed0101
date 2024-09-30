@@ -161,7 +161,6 @@ cython_debug/
 
 # Miscellaneous
 *.png
-*.gif
 temp*
 frame*
 fonts/
