@@ -23,13 +23,11 @@ from PIL import Image, ImageDraw, ImageFont
 from gifos.utils.convert_ansi_escape import ConvertAnsiEscape
 from gifos.utils.load_config import gifos_settings
 
-frame_base_name = gifos_settings.get(
-    "files", {}).get("frame_base_name") or "frame_"
+frame_base_name = gifos_settings.get("files", {}).get("frame_base_name") or "frame_"
 frame_folder_name = (
     gifos_settings.get("files", {}).get("frame_folder_name") or "./frames"
 )
-output_gif_name = gifos_settings.get(
-    "files", {}).get("output_gif_name") or "output"
+output_gif_name = gifos_settings.get("files", {}).get("output_gif_name") or "output"
 
 try:
     os.remove(output_gif_name + ".gif")
@@ -41,6 +39,7 @@ os.mkdir(frame_folder_name)
 
 font_path = Path(__file__).parent / "fonts"
 
+print(font_path)
 
 class Terminal:
     """A class to represent a terminal.
@@ -120,26 +119,22 @@ class Terminal:
         if not self.__debug:
             ic.disable()
 
-        self.__txt_color = self.__def_txt_color = ConvertAnsiEscape.convert(
-            "39").data
-        self.__bg_color = self.__def_bg_color = ConvertAnsiEscape.convert(
-            "49").data
+        self.__txt_color = self.__def_txt_color = ConvertAnsiEscape.convert("39").data
+        self.__bg_color = self.__def_bg_color = ConvertAnsiEscape.convert("49").data
         self.__frame_count = 0
         self.curr_row = 0
         self.curr_col = 0
         self.set_font(self.__font_file, self.__font_size, line_spacing)
         self.__cursor = gifos_settings.get("general", {}).get("cursor") or "_"
         self.__cursor_orig = self.__cursor
-        self.__show_cursor = gifos_settings.get(
-            "general", {}).get("show_cursor", True)
+        self.__show_cursor = gifos_settings.get("general", {}).get("show_cursor", True)
         self.__blink_cursor = gifos_settings.get("general", {}).get(
             "blink_cursor", True
         )
         self.__fps = gifos_settings.get("general", {}).get("fps") or 20
-        self.__loop_count = gifos_settings.get(
-            "general", {}).get("loop_count") or 0
+        self.__loop_count = gifos_settings.get("general", {}).get("loop_count") or 0
         self.__user_name = (
-            gifos_settings.get("general", {}).get("user_name") or "Obed0101"
+            gifos_settings.get("general", {}).get("user_name") or "x0rzavi"
         )
         self.__prompt = (
             f"\x1b[0;91m{self.__user_name}\x1b[0m@\x1b[0;93mgifos ~> \x1b[0m"
@@ -187,17 +182,18 @@ class Terminal:
         :rtype: ImageFont.ImageFont | ImageFont.FreeTypeFont | None
         """
         try:
-            font = ImageFont.truetype(font_file, font_size)
+            font = ImageFont.truetype(font_file, font_size,  encoding="unic")
             return font
-        except OSError:
+        except Exception as e:
+            print(f"ERROR: Exception occurred while loading font {font_file} as truetype: {e}")
             pass
 
         try:
             font = ImageFont.load(font_file)
-            print(f"WARNING: {
-                  font_file} is BitMap - Ignoring size {font_size}")
+            print(f"WARNING: {font_file} is BitMap - Ignoring size {font_size}")
             return font
-        except OSError:
+        except Exception as e:
+            print(f"ERROR: Exception occurred while loading font {font_file} as bitmap: {e}")
             return None
 
     def __check_monospace_font(
@@ -215,8 +211,7 @@ class Terminal:
             - "avg_width": The average width of the characters in the font.
         :rtype: dict
         """
-        widths = [font.getbbox(chr(i))[2]
-                  for i in range(ord("A"), ord("Z") + 1)]
+        widths = [font.getbbox(chr(i))[2] for i in range(ord("A"), ord("Z") + 1)]
         avg_width = int(round(sum(widths) / len(widths), 0))
         return {"check": max(widths) == min(widths), "avg_width": avg_width}
 
@@ -241,8 +236,14 @@ class Terminal:
         :param line_spacing: The line spacing to use for the terminal. Defaults to 4.
         :type line_spacing: int, optional
         """
+        
         self.__font = self.__check_font_type(font_file, font_size)
+        print("PASSED 1")
+        print(self.__font)
+        print(font_file)
+        print(font_size)
         if self.__font:
+            print("PASSED 2")
             self.__line_spacing = line_spacing
             if self.__check_monospace_font(self.__font)["check"]:
                 self.__font_width = self.__font.getbbox("W")[
@@ -260,8 +261,7 @@ class Terminal:
             self.num_rows = (self.__height - 2 * self.__ypad) // (
                 self.__font_height + self.__line_spacing
             )
-            self.num_cols = (self.__width - 2 *
-                             self.__xpad) // (self.__font_width)
+            self.num_cols = (self.__width - 2 * self.__xpad) // (self.__font_width)
             print(f"INFO: Loaded font_file: {font_file}")
             print(f"INFO: Number of rows: {self.num_rows}")
             print(f"INFO: Number of columns: {self.num_cols}")
@@ -340,11 +340,9 @@ class Terminal:
         for i in range(self.num_rows + 1):  # (n + 1) lines
             x1 = self.__xpad
             x2 = self.__width - self.__xpad
-            y1 = y2 = self.__ypad + i * \
-                (self.__font_height + self.__line_spacing)
+            y1 = y2 = self.__ypad + i * (self.__font_height + self.__line_spacing)
             draw.line([(x1, y1), (x2, y2)], "yellow")
-            draw.text((0, y1), str(i + 1), "orange",
-                      self.__font)  # row numbers
+            draw.text((0, y1), str(i + 1), "orange", self.__font)  # row numbers
         for i in range(self.num_cols + 1):  # (n + 1) lines
             x1 = x2 = self.__xpad + i * self.__font_width
             y1 = self.__ypad
@@ -385,8 +383,7 @@ class Terminal:
         :rtype: Image.Image
         """
         if frame is None:
-            frame = Image.new(
-                "RGB", (self.__width, self.__height), self.__bg_color)
+            frame = Image.new("RGB", (self.__width, self.__height), self.__bg_color)
             self.__col_in_row = {_ + 1: 1 for _ in range(self.num_rows)}
             if self.__debug:
                 frame = self.__frame_debug_lines(frame)
@@ -406,8 +403,7 @@ class Terminal:
         :param base_file_name: The base file name for the PNG file.
         :type base_file_name: str
         """
-        file_name = base_file_name + \
-            ("" if ".png" in base_file_name else ".png")
+        file_name = base_file_name + ("" if ".png" in base_file_name else ".png")
         self.__frame.save(file_name, "PNG")
         print(f"INFO: Saved frame #{self.__frame_count}: {file_name}")
 
@@ -465,8 +461,7 @@ class Terminal:
             raise ValueError
         elif row_num > self.num_rows:
             ic(
-                f"row {row_num} > max row {
-                    self.num_rows}, using row {self.num_rows} instead"
+                f"row {row_num} > max row {self.num_rows}, using row {self.num_rows} instead"
             )
             row_num = self.num_rows
         max_row_num = (
@@ -510,8 +505,7 @@ class Terminal:
         ic(self.curr_row, self.curr_col)  # debug
 
         x1 = self.__xpad + (col_num - 1) * self.__font_width
-        y1 = self.__ypad + (row_num - 1) * \
-            (self.__font_height + self.__line_spacing)
+        y1 = self.__ypad + (row_num - 1) * (self.__font_height + self.__line_spacing)
         x2 = self.__xpad + col_num * self.__font_width
         y2 = self.__ypad + row_num * (self.__font_height + self.__line_spacing)
         return x1, y1, x2, y2
@@ -572,8 +566,7 @@ class Terminal:
             )  # initialize position to check contin for each line
 
             line = text_lines[i]  # single line
-            words = [word for word in re.split(
-                ansi_escape_pattern, line) if word]
+            words = [word for word in re.split(ansi_escape_pattern, line) if word]
             for word in words:  # for each word in line
                 if re.match(ansi_escape_pattern, word):  # if ANSI escape sequence
                     codes = [
@@ -647,8 +640,7 @@ class Terminal:
                 )
                 self.__frame.paste(blank_box_image, (cx1, cy1))
                 if (
-                    self.__blink_cursor and self.__frame_count % (
-                        self.__fps // 3) == 0
+                    self.__blink_cursor and self.__frame_count % (self.__fps // 3) == 0
                 ):  # alter cursor such that blinks every one-third second
                     self.__alter_cursor()
 
@@ -689,12 +681,10 @@ class Terminal:
         words = [word for word in re.split(ansi_escape_pattern, text) if word]
         for word in words:
             if re.match(ansi_escape_pattern, word):
-                self.gen_text(
-                    word, row_num, self.__col_in_row[row_num], 0, False, True)
+                self.gen_text(word, row_num, self.__col_in_row[row_num], 0, False, True)
             else:
                 for char in word:
-                    count = speed if speed in [
-                        1, 2, 3] else random.choice([1, 2, 3])
+                    count = speed if speed in [1, 2, 3] else random.choice([1, 2, 3])
                     self.gen_text(
                         char, row_num, self.__col_in_row[row_num], count, False, True
                     )
@@ -860,10 +850,8 @@ class Terminal:
         This method generates a GIF from the frames. The method uses the `ffmpeg` command to generate the GIF, with the frames per second (fps) set to the fps specified in the Terminal object. The generated GIF is saved with the name specified by `output_gif_name`.
         """
         os.system(
-            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{frame_folder_name}/{frame_base_name}%d.png' -loop {
-                self.__loop_count} -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' {output_gif_name}.gif"
+            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{frame_folder_name}/{frame_base_name}%d.png' -loop {self.__loop_count} -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' {output_gif_name}.gif"
         )
         print(
-            f"INFO: Generated {output_gif_name}.gif approximately {
-                round(self.__frame_count / self.__fps, 2)}s long"
+            f"INFO: Generated {output_gif_name}.gif approximately {round(self.__frame_count / self.__fps, 2)}s long"
         )

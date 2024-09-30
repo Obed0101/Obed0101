@@ -195,11 +195,10 @@ def fetch_total_commits(user_name: str) -> int:
         otherwise None.
     :rtype: int or None
     """
-    REST_API_URL = f"https://api.github.com/search/commits?q=author:{
-        user_name}"
+    REST_API_URL = f"https://api.github.com/search/commits?q=author:{user_name}"
     headers = {
         "Content-Type": "application/json",
-        "User-Agent": "Obed0101",
+        "User-Agent": "x0rzavi",
         "Accept": "application/vnd.github+json",
         "Authorization": f"token {GITHUB_TOKEN}",
     }
@@ -257,8 +256,7 @@ def fetch_github_stats(
             if repo["name"] not in (ignore_repos or []):
                 total_stargazers += repo["stargazerCount"]
                 if not repo["isFork"]:
-                    update_languages(repo["languages"]
-                                     ["edges"], languages_dict)
+                    update_languages(repo["languages"]["edges"], languages_dict)
         return total_stargazers
 
     while True:  # paginate repository stats
