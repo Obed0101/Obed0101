@@ -182,7 +182,7 @@ class Terminal:
         :rtype: ImageFont.ImageFont | ImageFont.FreeTypeFont | None
         """
         try:
-            font = ImageFont.truetype(font_file, font_size,  encoding="unic")
+            font = ImageFont.truetype(font_file, font_size)
             return font
         except Exception as e:
             print(f"ERROR: Exception occurred while loading font {font_file} as truetype: {e}")
@@ -238,12 +238,7 @@ class Terminal:
         """
         
         self.__font = self.__check_font_type(font_file, font_size)
-        print("PASSED 1")
-        print(self.__font)
-        print(font_file)
-        print(font_size)
         if self.__font:
-            print("PASSED 2")
             self.__line_spacing = line_spacing
             if self.__check_monospace_font(self.__font)["check"]:
                 self.__font_width = self.__font.getbbox("W")[

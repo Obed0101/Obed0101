@@ -1,7 +1,10 @@
 from datetime import datetime
 
-import gifos
+import gifos, subprocess
 from zoneinfo import ZoneInfo
+
+
+
 
 FONT_FILE_LOGO = "/home/obed/Repos/github-readme-terminal/gifos/fonts/vtks-blocketo.regular.ttf"
 # FONT_FILE_BITMAP = "./fonts/ter-u14n.pil"
@@ -9,13 +12,26 @@ FONT_FILE_BITMAP = "./gifos/fonts/gohufont-uni-14.pil"
 FONT_FILE_TRUETYPE = "./gifos/fonts/IosevkaTermNerdFont-Bold.ttf"
 FONT_FILE_MONA = "./gifos/fonts/Inversionz.otf"
 
+def get_packages():
+    try:
+        # Execute the command to list installed packages
+        result = subprocess.run(['dpkg', '--get-selections'], stdout=subprocess.PIPE, text=True, check=True)
+        
+        # Split the output into lines and filter for installed packages
+        packages = result.stdout.splitlines()
+        installed_packages = [pkg.split()[0] for pkg in packages if pkg.endswith('\tinstall')]
+        
+        return len(installed_packages)
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred while retrieving packages: {e}")
+        return []
 
 def main():
     t = gifos.Terminal(750, 500, 15, 15, FONT_FILE_BITMAP, 15)
 
     t.gen_text("", 1, count=20)
     t.toggle_show_cursor(False)
-    year_now = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%Y")
+    year_now = datetime.now(ZoneInfo("America/Panama")).strftime("%Y")
     t.gen_text("GIF_OS Modular BIOS v1.0.11", 1)
     t.gen_text(f"Copyright (C) {
                year_now}, \x1b[31mObed0101 Softwares Inc.\x1b[0m", 2)
@@ -67,7 +83,7 @@ def main():
     t.toggle_show_cursor(True)
     t.gen_typing_text("*********", 4, contin=True)
     t.toggle_show_cursor(False)
-    time_now = datetime.now(ZoneInfo("Asia/Kolkata")).strftime(
+    time_now = datetime.now(ZoneInfo("America/Panama")).strftime(
         "%a %b %d %I:%M:%S %p %Z %Y"
     )
     t.gen_text(f"Last login: {time_now} on tty1", 6)
@@ -79,24 +95,27 @@ def main():
     t.delete_row(7, prompt_col)  # simulate syntax highlighting
     t.gen_text("\x1b[92mclear\x1b[0m", 7, count=3, contin=True)
 
-    ignore_repos = ["archiso-zfs", "archiso-zfs-archive"]
-    git_user_details = gifos.utils.fetch_github_stats("Obed0101", ignore_repos)
-    user_age = gifos.utils.calc_age(26, 7, 2002)
+    #ignore_repos = []
+    git_user_details = gifos.utils.fetch_github_stats("Obed0101")
+    packages = get_packages()
+    user_age = gifos.utils.calc_age(20, 12, 2005)
     t.clear_frame()
     top_languages = [lang[0] for lang in git_user_details.languages_sorted]
     user_details_lines = f"""
     \x1b[30;101mObed0101@GitHub\x1b[0m
     --------------
-    \x1b[96mOS:     \x1b[93mArch/Gentoo Linux, Windows 11, Android 14\x1b[0m
-    \x1b[96mHost:   \x1b[93mNetaji Subhash Engineering College \x1b[94m#NSEC\x1b[0m
-    \x1b[96mKernel: \x1b[93mComputer Science & Engineering \x1b[94m#CSE\x1b[0m
+    \x1b[96mOS:     \x1b[93mDeepin OS, Windows 11, Android 14\x1b[0m
+    \x1b[96mHost:   \x1b[93mPrivate Company\x1b[0m
+    \x1b[96mKernel: \x1b[93mFull-Stack Developer \x1b[94m#CSE\x1b[0m
     \x1b[96mUptime: \x1b[93m{user_age.years} years, {user_age.months} months, {user_age.days} days\x1b[0m
-    \x1b[96mIDE:    \x1b[93mneovim, VSCode\x1b[0m
+    \x1b[96mIDE:    \x1b[93mCursor, neovim, VSCode\x1b[0m
+    \x1b[96mShell:  \x1b[93mbash, zsh, fish\x1b[0m
+    \x1b[96mTheme:  \x1b[93mCatppuccin Mocha\x1b[0m
+    \x1b[96mWM:     \x1b[93mOpenbox, VirtualBox\x1b[0m
 
     \x1b[30;101mContact:\x1b[0m
     --------------
-    \x1b[96mEmail:      \x1b[93mObed0101@gmail.com\x1b[0m
-    \x1b[96mLinkedIn:   \x1b[93msen-avishek\x1b[0m
+    \x1b[96mEmail:      \x1b[93mobedev.dev@gmail.com\x1b[0m
 
     \x1b[30;101mGitHub Stats:\x1b[0m
     --------------
@@ -151,7 +170,7 @@ def main():
     t.gen_text(user_details_lines, 2, 35, count=5, contin=True)
     t.gen_prompt(t.curr_row)
     t.gen_typing_text(
-        "\x1b[92m# Have a nice day kind stranger :D Thanks for stopping by!",
+        "\x1b[92m# When a programmer is born, he does not cry, he says 'Hello, world' | #Jaegerists",
         t.curr_row,
         contin=True,
     )
