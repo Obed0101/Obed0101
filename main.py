@@ -27,7 +27,7 @@ def get_packages():
         return []
 
 def main():
-    t = gifos.Terminal(800, 550, 15, 15, FONT_FILE_BITMAP, 15)
+    t = gifos.Terminal(850, 600, 15, 15, FONT_FILE_BITMAP, 15)
 
     t.gen_text("", 1, count=20)
     t.toggle_show_cursor(False)
