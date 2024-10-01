@@ -27,7 +27,7 @@ def get_packages():
         return []
 
 def main():
-    t = gifos.Terminal(750, 500, 15, 15, FONT_FILE_BITMAP, 15)
+    t = gifos.Terminal(800, 550, 15, 15, FONT_FILE_BITMAP, 15)
 
     t.gen_text("", 1, count=20)
     t.toggle_show_cursor(False)
@@ -57,7 +57,7 @@ def main():
     t.gen_text("Initiating Boot Sequence ", 1, contin=True)
     t.gen_typing_text(".....", 1, contin=True)
     t.gen_text("\x1b[96m", 1, count=0, contin=True)  # buffer to be removed
-    #t.set_font(FONT_FILE_LOGO, 66)
+    t.set_font(FONT_FILE_LOGO, 66)
     # t.toggle_show_cursor(True)
     os_logo_text = "GIF OS"
     mid_row = (t.num_rows + 1) // 2
@@ -136,7 +136,7 @@ def main():
     t.gen_text("\x1b[92mfetch.sh\x1b[0m", 1, contin=True)
     t.gen_typing_text(" -u Obed0101", 1, contin=True)
 
-    #t.set_font(FONT_FILE_MONA, 16, 0)
+    t.set_font(FONT_FILE_MONA, 16, 0)
     t.toggle_show_cursor(False)
     monaLines = r"""
     \x1b[49m     \x1b[90;100m}}\x1b[49m     \x1b[90;100m}}\x1b[0m
