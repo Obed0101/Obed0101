@@ -7,19 +7,31 @@
 # [] Retry on error
 
 import os
-import requests
+import json
 import sys
-
-from dotenv import load_dotenv
+from typing import Optional
+from urllib import error, parse, request
 
 from gifos.utils.calc_github_rank import calc_github_rank
 from gifos.utils.schemas.github_user_stats import GithubUserStats
 
 """This module contains a function for fetching a GitHub user's statistics."""
 
-load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GRAPHQL_ENDPOINT = "https://api.github.com/graphql"
+
+
+def request_json(url: str, headers: dict, payload: Optional[dict] = None) -> tuple[int, Optional[dict]]:
+    data = json.dumps(payload).encode() if payload is not None else None
+    req = request.Request(url, data=data, headers=headers, method="POST" if data else "GET")
+    try:
+        with request.urlopen(req, timeout=30) as response:
+            return response.status, json.loads(response.read().decode())
+    except error.HTTPError as exc:
+        return exc.code, None
+    except error.URLError as exc:
+        print(f"ERROR: {exc.reason}")
+        return 0, None
 
 
 def fetch_repo_stats(user_name: str, repo_end_cursor: str = None) -> dict:
@@ -86,14 +98,11 @@ def fetch_repo_stats(user_name: str, repo_end_cursor: str = None) -> dict:
     headers = {"Authorization": f"bearer {GITHUB_TOKEN}"}
     variables = {"user_name": user_name, "repo_end_cursor": repo_end_cursor}
 
-    response = requests.post(
-        GRAPHQL_ENDPOINT,
-        json={"query": query, "variables": variables},
-        headers=headers,
+    status_code, json_obj = request_json(
+        GRAPHQL_ENDPOINT, headers, {"query": query, "variables": variables}
     )
 
-    if response.status_code == 200:
-        json_obj = response.json()
+    if status_code == 200 and json_obj:
         if "errors" in json_obj:
             print(f"ERROR: {json_obj['errors']}")
             return None
@@ -101,7 +110,7 @@ def fetch_repo_stats(user_name: str, repo_end_cursor: str = None) -> dict:
             print(f"INFO: Repository details fetched for {user_name}")
             return json_obj["data"]["user"]["repositories"]
     else:
-        print(f"ERROR: {response.status_code}")
+        print(f"ERROR: {status_code}")
         return None
 
 
@@ -162,14 +171,11 @@ def fetch_user_stats(user_name: str) -> dict:
     headers = {"Authorization": f"bearer {GITHUB_TOKEN}"}
     variables = {"user_name": user_name}
 
-    response = requests.post(
-        GRAPHQL_ENDPOINT,
-        json={"query": query, "variables": variables},
-        headers=headers,
+    status_code, json_obj = request_json(
+        GRAPHQL_ENDPOINT, headers, {"query": query, "variables": variables}
     )
 
-    if response.status_code == 200:
-        json_obj = response.json()
+    if status_code == 200 and json_obj:
         if "errors" in json_obj:
             print(f"ERROR: {json_obj['errors']}")
             return None
@@ -177,7 +183,7 @@ def fetch_user_stats(user_name: str) -> dict:
             print(f"INFO: User details fetched for {user_name}")
             return json_obj["data"]["user"]
     else:
-        print(f"ERROR: {response.status_code}")
+        print(f"ERROR: {status_code}")
         return None
 
 
@@ -195,21 +201,21 @@ def fetch_total_commits(user_name: str) -> int:
         otherwise None.
     :rtype: int or None
     """
-    REST_API_URL = f"https://api.github.com/search/commits?q=author:{user_name}"
+    query = parse.urlencode({"q": f"author:{user_name}"})
+    REST_API_URL = f"https://api.github.com/search/commits?{query}"
     headers = {
         "Content-Type": "application/json",
         "User-Agent": "x0rzavi",
         "Accept": "application/vnd.github+json",
         "Authorization": f"token {GITHUB_TOKEN}",
     }
-    response = requests.get(REST_API_URL, headers=headers)
-    if response.status_code == 200:
-        json_obj = response.json()
+    status_code, json_obj = request_json(REST_API_URL, headers)
+    if status_code == 200 and json_obj:
         total_commits_all_time = json_obj["total_count"]
         print(f"INFO: Total commits fetched for {user_name}")
         return total_commits_all_time
     else:
-        print(f"ERROR: {response.status_code}")
+        print(f"ERROR: {status_code}")
         return None
 
 

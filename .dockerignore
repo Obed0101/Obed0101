@@ -1,0 +1,10 @@
+.git
+.mendcode
+.agents
+.env
+.env.*
+.envrefs
+frames
+temp*
+__pycache__
+*.pyc

@@ -1,16 +1,14 @@
 from base64 import b64encode
+import json
 import os
-import requests
 import sys
-
-from dotenv import load_dotenv
+from urllib import error, parse, request
 
 from gifos.utils.load_config import gifos_settings
 from gifos.utils.schemas.imagebb_image import ImgbbImage
 
 """This module contains a function for uploading an image to ImgBB."""
 
-load_dotenv()
 IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
 ENDPOINT = "https://api.imgbb.com/1/upload"
 
@@ -50,7 +48,7 @@ def upload_imgbb(file_name: str, expiration: int = None) -> ImgbbImage:
 
     with open(file_name, "rb") as image:
         image_name = image.name
-        image_base64 = b64encode(image.read())
+        image_base64 = b64encode(image.read()).decode()
 
         data = {
             "key": IMGBB_API_KEY,
@@ -60,9 +58,20 @@ def upload_imgbb(file_name: str, expiration: int = None) -> ImgbbImage:
         if expiration:
             data["expiration"] = expiration
 
-        response = requests.post(ENDPOINT, data)
-        if response.status_code == 200:
-            json_obj = response.json()
+        encoded_data = parse.urlencode(data).encode()
+        req = request.Request(ENDPOINT, encoded_data, method="POST")
+        try:
+            with request.urlopen(req, timeout=30) as response:
+                status_code = response.status
+                json_obj = json.loads(response.read().decode())
+        except error.HTTPError as exc:
+            status_code = exc.code
+            json_obj = None
+        except error.URLError as exc:
+            print(f"ERROR: {exc.reason}")
+            return None
+
+        if status_code == 200 and json_obj:
             return ImgbbImage(
                 id=json_obj["data"]["id"],
                 url=json_obj["data"]["url"],
@@ -74,5 +83,5 @@ def upload_imgbb(file_name: str, expiration: int = None) -> ImgbbImage:
                 extension=json_obj["data"]["image"]["extension"],
             )
         else:
-            print(f"ERROR: {response.status_code}")
+            print(f"ERROR: {status_code}")
             return None

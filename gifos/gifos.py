@@ -15,9 +15,9 @@ from pathlib import Path
 import random
 import re
 from shutil import rmtree
+import subprocess
 import sys
 
-from icecream import ic
 from PIL import Image, ImageDraw, ImageFont
 
 from gifos.utils.convert_ansi_escape import ConvertAnsiEscape
@@ -29,17 +29,32 @@ frame_folder_name = (
 )
 output_gif_name = gifos_settings.get("files", {}).get("output_gif_name") or "output"
 
-try:
-    os.remove(output_gif_name + ".gif")
-except Exception:
-    pass
-
-rmtree(frame_folder_name, ignore_errors=True)
-os.mkdir(frame_folder_name)
-
 font_path = Path(__file__).parent / "fonts"
 
 print(font_path)
+
+
+class DebugPrinter:
+    def __init__(self) -> None:
+        self.enabled = True
+
+    def __call__(self, *args) -> None:
+        if self.enabled:
+            print("DEBUG:", *args)
+
+    def configureOutput(self, **_kwargs) -> None:
+        pass
+
+    def disable(self) -> None:
+        self.enabled = False
+
+
+ic = DebugPrinter()
+
+
+def prepare_frame_folder() -> None:
+    rmtree(frame_folder_name, ignore_errors=True)
+    os.makedirs(frame_folder_name, exist_ok=True)
 
 class Terminal:
     """A class to represent a terminal.
@@ -109,6 +124,7 @@ class Terminal:
         :type line_spacing: int, optional
         """
         ic.configureOutput(includeContext=True)
+        prepare_frame_folder()
         self.__width = width
         self.__height = height
         self.__xpad = xpad
@@ -844,9 +860,29 @@ class Terminal:
 
         This method generates a GIF from the frames. The method uses the `ffmpeg` command to generate the GIF, with the frames per second (fps) set to the fps specified in the Terminal object. The generated GIF is saved with the name specified by `output_gif_name`.
         """
-        os.system(
-            f"ffmpeg -hide_banner -loglevel error -r {self.__fps} -i '{frame_folder_name}/{frame_base_name}%d.png' -loop {self.__loop_count} -filter_complex '[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse' {output_gif_name}.gif"
+        output_file = Path(f"{output_gif_name}.gif")
+        temp_output_file = output_file.with_suffix(".tmp.gif")
+        temp_output_file.unlink(missing_ok=True)
+
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-r",
+                str(self.__fps),
+                "-i",
+                f"{frame_folder_name}/{frame_base_name}%d.png",
+                "-loop",
+                str(self.__loop_count),
+                "-filter_complex",
+                "[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse",
+                str(temp_output_file),
+            ],
+            check=True,
         )
+        temp_output_file.replace(output_file)
         print(
             f"INFO: Generated {output_gif_name}.gif approximately {round(self.__frame_count / self.__fps, 2)}s long"
         )

@@ -167,3 +167,5 @@ fonts/
 .vscode
 !docs/**
 .envrefs
+.mendcode/
+.agents/

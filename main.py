@@ -7,12 +7,35 @@ from zoneinfo import ZoneInfo
 
 BASE_DIR = Path(__file__).resolve().parent
 FONT_DIR = BASE_DIR / "gifos" / "fonts"
-FONT_FILE_LOGO = str(FONT_DIR / "vtks-blocketo.regular.ttf")
-# FONT_FILE_BITMAP = "./fonts/ter-u14n.pil"
-FONT_FILE_BITMAP = str(FONT_DIR / "gohufont-uni-14.pil")
-FONT_FILE_TRUETYPE = str(FONT_DIR / "IosevkaTermNerdFont-Bold.ttf")
-FONT_FILE_MONA = str(FONT_DIR / "Inversionz.otf")
-FONT_FILE_ASCII = str(FONT_DIR / "NotoMono-Regular.ttf")
+
+
+def first_existing_font(*paths: Path) -> str:
+    for path in paths:
+        if path.exists():
+            return str(path)
+    raise FileNotFoundError(
+        "No usable font found. Add fonts under gifos/fonts or run through Docker."
+    )
+
+
+SYSTEM_MONO_FONTS = [
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"),
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"),
+    Path("/System/Library/Fonts/Menlo.ttc"),
+    Path("/Library/Fonts/Menlo.ttc"),
+]
+SYSTEM_BOLD_MONO_FONTS = [
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"),
+    Path("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"),
+    Path("/System/Library/Fonts/Menlo.ttc"),
+    Path("/Library/Fonts/Menlo.ttc"),
+]
+
+FONT_FILE_LOGO = first_existing_font(
+    FONT_DIR / "vtks-blocketo.regular.ttf", *SYSTEM_BOLD_MONO_FONTS
+)
+FONT_FILE_BITMAP = first_existing_font(FONT_DIR / "gohufont-uni-14.pil", *SYSTEM_MONO_FONTS)
+FONT_FILE_ASCII = first_existing_font(FONT_DIR / "NotoMono-Regular.ttf", *SYSTEM_MONO_FONTS)
 
 def main():
     t = gifos.Terminal(795, 490, 15, 15, FONT_FILE_BITMAP, 15)

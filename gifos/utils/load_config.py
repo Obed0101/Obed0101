@@ -1,10 +1,6 @@
 import os
 from pathlib import Path
-
-try:
-    import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib
+import tomllib
 
 """This module contains a function for loading a TOML configuration file or
 updating configuration with environment variables."""
