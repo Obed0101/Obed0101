@@ -38,7 +38,7 @@ FONT_FILE_BITMAP = first_existing_font(FONT_DIR / "gohufont-uni-14.pil", *SYSTEM
 FONT_FILE_ASCII = first_existing_font(FONT_DIR / "NotoMono-Regular.ttf", *SYSTEM_MONO_FONTS)
 
 def main():
-    t = gifos.Terminal(795, 560, 15, 15, FONT_FILE_BITMAP, 15)
+    t = gifos.Terminal(795, 490, 15, 15, FONT_FILE_BITMAP, 15)
 
     t.gen_text("", 1, count=20)
     t.toggle_show_cursor(False)
@@ -119,10 +119,8 @@ def main():
 \x1b[96mIDE:     \x1b[93mCursor, Neovim, VS Code\x1b[0m
 \x1b[96mShell:   \x1b[93mMendCode AI terminal\x1b[0m
 \x1b[30;101mContact\x1b[0m
---------------
 \x1b[96mEmail:   \x1b[93mobedev.dev@gmail.com\x1b[0m
 \x1b[30;101mGitHub Stats\x1b[0m
---------------
 \x1b[96mRating:  \x1b[93m{git_user_details.user_rank.level}\x1b[0m
 \x1b[96mStars:   \x1b[93m{git_user_details.total_stargazers}\x1b[0m
 \x1b[96mCommits: \x1b[93m{git_user_details.total_commits_last_year}\x1b[0m
@@ -148,13 +146,13 @@ def main():
     `''''MMMMM88&&&&''''`
           'MMM8&&&'
     """
-    t.gen_text(monaLines, 9)
+    t.gen_text(monaLines, 10)
 
     t.set_font(FONT_FILE_BITMAP)
     t.toggle_show_cursor(True)
     # t.pasteImage("./temp/Obed0101.jpg", 3, 5, sizeMulti=0.5)
-    t.gen_text(user_details_lines, 4, 31, count=5, contin=True)
-    t.gen_prompt(t.curr_row)
+    t.gen_text(user_details_lines, 4, 35, count=5, contin=True)
+    t.gen_prompt(t.curr_row + 1)
     t.gen_typing_text(
         "\x1b[92m# the terminal was due for an AI upgrade",
         t.curr_row,
