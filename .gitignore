@@ -166,3 +166,4 @@ frame*
 fonts/
 .vscode
 !docs/**
+.envrefs

@@ -1,31 +1,18 @@
 from datetime import datetime
+from pathlib import Path
 
-import gifos, subprocess
+import gifos
 from zoneinfo import ZoneInfo
 
 
-
-
-FONT_FILE_LOGO = "/home/obed/Repos/github-readme-terminal/gifos/fonts/vtks-blocketo.regular.ttf"
+BASE_DIR = Path(__file__).resolve().parent
+FONT_DIR = BASE_DIR / "gifos" / "fonts"
+FONT_FILE_LOGO = str(FONT_DIR / "vtks-blocketo.regular.ttf")
 # FONT_FILE_BITMAP = "./fonts/ter-u14n.pil"
-FONT_FILE_BITMAP = "./gifos/fonts/gohufont-uni-14.pil"
-FONT_FILE_TRUETYPE = "./gifos/fonts/IosevkaTermNerdFont-Bold.ttf"
-FONT_FILE_MONA = "./gifos/fonts/Inversionz.otf"
-FONT_FILE_ASCII = "./gifos/fonts/NotoMono-Regular.ttf"
-
-def get_packages():
-    try:
-        # Execute the command to list installed packages
-        result = subprocess.run(['dpkg', '--get-selections'], stdout=subprocess.PIPE, text=True, check=True)
-        
-        # Split the output into lines and filter for installed packages
-        packages = result.stdout.splitlines()
-        installed_packages = [pkg.split()[0] for pkg in packages if pkg.endswith('\tinstall')]
-        
-        return len(installed_packages)
-    except subprocess.CalledProcessError as e:
-        print(f"An error occurred while retrieving packages: {e}")
-        return []
+FONT_FILE_BITMAP = str(FONT_DIR / "gohufont-uni-14.pil")
+FONT_FILE_TRUETYPE = str(FONT_DIR / "IosevkaTermNerdFont-Bold.ttf")
+FONT_FILE_MONA = str(FONT_DIR / "Inversionz.otf")
+FONT_FILE_ASCII = str(FONT_DIR / "NotoMono-Regular.ttf")
 
 def main():
     t = gifos.Terminal(795, 490, 15, 15, FONT_FILE_BITMAP, 15)
@@ -34,8 +21,7 @@ def main():
     t.toggle_show_cursor(False)
     year_now = datetime.now(ZoneInfo("America/Panama")).strftime("%Y")
     t.gen_text("GIF_OS Modular BIOS v1.0.11", 1)
-    t.gen_text(f"Copyright (C) {
-               year_now}, \x1b[31mObed0101 Softwares Inc.\x1b[0m", 2)
+    t.gen_text(f"Copyright (C) {year_now}, \x1b[31mGITSA\x1b[0m", 2)
     t.gen_text("\x1b[94mGitHub Profile ReadMe Terminal, Rev 1011\x1b[0m", 4)
     t.gen_text("Krypton(tm) GIFCPU - 250Hz", 6)
     t.gen_text(
@@ -98,19 +84,18 @@ def main():
 
     #ignore_repos = []
     git_user_details = gifos.utils.fetch_github_stats("Obed0101")
-    packages = get_packages()
     user_age = gifos.utils.calc_age(20, 12, 2005)
     t.clear_frame()
     top_languages = [lang[0] for lang in git_user_details.languages_sorted]
     user_details_lines = f"""
         \x1b[30;101mObed0101@GitHub\x1b[0m
         --------------
-        \x1b[96mOS:     \x1b[93mDeepin OS, Windows 11, Android 14\x1b[0m
-        \x1b[96mHost:   \x1b[93mPrivate Company\x1b[0m
-        \x1b[96mKernel: \x1b[93mFull-Stack Developer \x1b[0m
+        \x1b[96mOS:     \x1b[93mmacOS / Linux\x1b[0m
+        \x1b[96mHost:   \x1b[93mGITSA\x1b[0m
+        \x1b[96mKernel: \x1b[93mFull-Stack Dev · MendCode Creator\x1b[0m
         \x1b[96mUptime: \x1b[93m{user_age.years} years, {user_age.months} months, {user_age.days} days\x1b[0m
-        \x1b[96mIDE:    \x1b[93mCursor, neovim, VSCode\x1b[0m
-        \x1b[96mShell:  \x1b[93mbash, zsh, fish\x1b[0m
+        \x1b[96mIDE:    \x1b[93mCursor, Neovim, VS Code\x1b[0m
+        \x1b[96mShell:  \x1b[93mzsh · MendCode AI terminal\x1b[0m
 
         \x1b[30;101mContact:\x1b[0m
         --------------
@@ -153,7 +138,7 @@ def main():
     t.gen_text(user_details_lines, 2, 35, count=5, contin=True)
     t.gen_prompt(t.curr_row)
     t.gen_typing_text(
-        "\x1b[92m# When a programmer is born, he does not cry, he says 'Hello, world'",
+        "\x1b[92m# the terminal was due for an AI upgrade",
         t.curr_row,
         contin=True,
     )
@@ -169,7 +154,7 @@ def main():
     <img alt="GIFOS" src="output.gif">
 </picture>
 
-<sub><i>Generated automatically using [Obed0101/github-readme-terminal](https://github.com/Obed0101/github-readme-terminal) on {time_now}</i></sub>
+<sub><i>Generated automatically by [GIF OS](https://github.com/Obed0101/Obed0101) on {time_now}</i></sub>
 
 <!-- <details>
 <summary>More details</summary>
@@ -178,7 +163,7 @@ def main():
 </div>
 
 <!-- Image deletion URL: NONE -->"""
-    with open("README.md", "w") as f:
+    with open(BASE_DIR / "README.md", "w") as f:
         f.write(readme_file_content)
         print("INFO: README.md file generated")
 
