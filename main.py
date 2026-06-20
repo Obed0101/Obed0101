@@ -116,7 +116,6 @@ def main():
 \x1b[96mHost:    \x1b[93mGITSA\x1b[0m
 \x1b[96mKernel:  \x1b[93mFull-Stack · MendCode\x1b[0m
 \x1b[96mUptime:  \x1b[93m{user_age.years}y {user_age.months}m {user_age.days}d\x1b[0m
-\x1b[96mIDE:     \x1b[93mCursor, Neovim, VS Code\x1b[0m
 \x1b[96mShell:   \x1b[93mMendCode AI terminal\x1b[0m
 \x1b[30;101mContact\x1b[0m
 \x1b[96mEmail:   \x1b[93mobedev.dev@gmail.com\x1b[0m
