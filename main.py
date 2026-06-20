@@ -38,7 +38,7 @@ FONT_FILE_BITMAP = first_existing_font(FONT_DIR / "gohufont-uni-14.pil", *SYSTEM
 FONT_FILE_ASCII = first_existing_font(FONT_DIR / "NotoMono-Regular.ttf", *SYSTEM_MONO_FONTS)
 
 def main():
-    t = gifos.Terminal(795, 490, 15, 15, FONT_FILE_BITMAP, 15)
+    t = gifos.Terminal(795, 560, 15, 15, FONT_FILE_BITMAP, 15)
 
     t.gen_text("", 1, count=20)
     t.toggle_show_cursor(False)
@@ -110,37 +110,32 @@ def main():
     user_age = gifos.utils.calc_age(20, 12, 2005)
     t.clear_frame()
     top_languages = [lang[0] for lang in git_user_details.languages_sorted]
-    user_details_lines = f"""
-        \x1b[30;101mObed0101@GitHub\x1b[0m
-        --------------
-        \x1b[96mOS:     \x1b[93mmacOS / Linux\x1b[0m
-        \x1b[96mHost:   \x1b[93mGITSA\x1b[0m
-        \x1b[96mKernel: \x1b[93mFull-Stack Dev · MendCode Creator\x1b[0m
-        \x1b[96mUptime: \x1b[93m{user_age.years} years, {user_age.months} months, {user_age.days} days\x1b[0m
-        \x1b[96mIDE:    \x1b[93mCursor, Neovim, VS Code\x1b[0m
-        \x1b[96mShell:  \x1b[93mzsh · MendCode AI terminal\x1b[0m
-
-        \x1b[30;101mContact:\x1b[0m
-        --------------
-        \x1b[96mEmail:      \x1b[93mobedev.dev@gmail.com\x1b[0m
-
-        \x1b[30;101mGitHub Stats:\x1b[0m
-        --------------
-        \x1b[96mUser Rating: \x1b[93m{git_user_details.user_rank.level}\x1b[0m
-        \x1b[96mTotal Stars Earned: \x1b[93m{git_user_details.total_stargazers}\x1b[0m
-        \x1b[96mTotal Commits ({int(year_now) - 1}): \x1b[93m{git_user_details.total_commits_last_year}\x1b[0m
-        \x1b[96mTotal PRs: \x1b[93m{git_user_details.total_pull_requests_made}\x1b[0m
-        \x1b[96mTotal Contributions: \x1b[93m{git_user_details.total_repo_contributions}\x1b[0m
-        \x1b[96mTop Languages: \x1b[93m{', '.join(top_languages[:5])}\x1b[0m
-    """
-    t.gen_prompt(1)
+    user_details_lines = f"""\x1b[30;101mObed0101@GitHub\x1b[0m
+--------------
+\x1b[96mOS:      \x1b[93mmacOS / Linux\x1b[0m
+\x1b[96mHost:    \x1b[93mGITSA\x1b[0m
+\x1b[96mKernel:  \x1b[93mFull-Stack · MendCode\x1b[0m
+\x1b[96mUptime:  \x1b[93m{user_age.years}y {user_age.months}m {user_age.days}d\x1b[0m
+\x1b[96mIDE:     \x1b[93mCursor, Neovim, VS Code\x1b[0m
+\x1b[96mShell:   \x1b[93mMendCode AI terminal\x1b[0m
+\x1b[30;101mContact\x1b[0m
+--------------
+\x1b[96mEmail:   \x1b[93mobedev.dev@gmail.com\x1b[0m
+\x1b[30;101mGitHub Stats\x1b[0m
+--------------
+\x1b[96mRating:  \x1b[93m{git_user_details.user_rank.level}\x1b[0m
+\x1b[96mStars:   \x1b[93m{git_user_details.total_stargazers}\x1b[0m
+\x1b[96mCommits: \x1b[93m{git_user_details.total_commits_last_year}\x1b[0m
+\x1b[96mPRs:     \x1b[93m{git_user_details.total_pull_requests_made}\x1b[0m
+\x1b[96mLangs:   \x1b[93m{', '.join(top_languages[:3])}\x1b[0m"""
+    t.gen_prompt(2)
     prompt_col = t.curr_col
     t.clone_frame(10)
     t.toggle_show_cursor(True)
-    t.gen_typing_text("\x1b[91mfetch.s", 1, contin=True)
-    t.delete_row(1, prompt_col)
-    t.gen_text("\x1b[92mfetch.sh\x1b[0m", 1, contin=True)
-    t.gen_typing_text(" -u Obed0101", 1, contin=True)
+    t.gen_typing_text("\x1b[91mfetch.s", 2, contin=True)
+    t.delete_row(2, prompt_col)
+    t.gen_text("\x1b[92mfetch.sh\x1b[0m", 2, contin=True)
+    t.gen_typing_text(" -u Obed0101", 2, contin=True)
 
     t.set_font(FONT_FILE_ASCII, 16, 0)
     t.toggle_show_cursor(False)
@@ -153,12 +148,12 @@ def main():
     `''''MMMMM88&&&&''''`
           'MMM8&&&'
     """
-    t.gen_text(monaLines, 10)
+    t.gen_text(monaLines, 9)
 
     t.set_font(FONT_FILE_BITMAP)
     t.toggle_show_cursor(True)
     # t.pasteImage("./temp/Obed0101.jpg", 3, 5, sizeMulti=0.5)
-    t.gen_text(user_details_lines, 2, 35, count=5, contin=True)
+    t.gen_text(user_details_lines, 4, 31, count=5, contin=True)
     t.gen_prompt(t.curr_row)
     t.gen_typing_text(
         "\x1b[92m# the terminal was due for an AI upgrade",
